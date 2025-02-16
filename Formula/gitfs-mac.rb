@@ -5,7 +5,7 @@ class GitfsMac < Formula
 
   desc "Version controlled file system"
   homepage "https://www.presslabs.com/gitfs"
-  url "https://github.com/presslabs/gitfs/archive/0.5.2.tar.gz"
+  url "https://github.com/presslabs/gitfs/archive/refs/tags/0.5.2.tar.gz"
   sha256 "921e24311e3b8ea3a5448d698a11a747618ee8dd62d5d43a85801de0b111cbf3"
   license "Apache-2.0"
   revision 1
@@ -19,6 +19,10 @@ class GitfsMac < Formula
     sha256 cellar: :any, catalina:       "aa14fd52fbd30a3d46fd57ec011ad73fefabc3350c5b962c10c71961bc9f7265"
     sha256 cellar: :any, mojave:         "7d0605b4d2d6022c607ae6dfbdf87ae984b2f73bbe43e35cddf60fef0b79d3dc"
   end
+
+  # Last release on 2019-10-20 and upstream has locked pygit2==0.28.2, which Homebrew
+  # has been ignoring and manually updating to support recent `libgit2` versions.
+  disable! date: "2023-10-06", because: :unmaintained
 
   depends_on "libgit2"
   depends_on MacfuseRequirement

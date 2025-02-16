@@ -3,27 +3,26 @@ require_relative "../require/macfuse"
 class S3BackerMac < Formula
   desc "FUSE-based single file backing store via Amazon S3"
   homepage "https://github.com/archiecobbs/s3backer"
-  url "https://archie-public.s3.amazonaws.com/s3backer/s3backer-1.6.3.tar.gz"
-  sha256 "f2d992b6390c9a7569525fbf973edb8f767ed4d59c7b87ca9e3d38f87992e132"
+  url "https://archie-public.s3.amazonaws.com/s3backer/s3backer-2.1.3.tar.gz"
+  sha256 "b49a7cae66bc29e8104db889e7e63137748d4a3442d88ebad9fffa4705808a81"
   license "GPL-2.0-or-later"
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-fuse/releases/download/s3-backer-mac-1.6.3"
-    sha256 cellar: :any, arm64_monterey: "b61d30670b020cb27c8acc9ce7888774dc1ce4f2aa42df4cc96cbc3ec98be389"
-    sha256 cellar: :any, monterey:       "fbba88dee405e54a779e2d44d00cf35c6fd07fcba8df09edd9c8dc354113ac46"
-    sha256 cellar: :any, big_sur:        "08a15a5a5096c36e415caf1e3de2c79566b7c515558f844801f0dd6055cbe3aa"
-    sha256 cellar: :any, catalina:       "693c50b9164d039d82af8417cbdf40da26cb6a8e847b4a8de90572ad56cc3c2d"
-    sha256 cellar: :any, mojave:         "6d73421febd44083336ff46ac5d1c9f16cb4a1709097ae61fbf8b4e7c29be114"
+    root_url "https://ghcr.io/v2/gromgit/fuse"
+    sha256 cellar: :any, arm64_sonoma: "74c3dc5284de2816f8ac93749c530cb6031a88cb862cd6b3cd815fc962d61c7f"
+    sha256 cellar: :any, ventura:      "9e4cc5154864642ffaaea319c13994eab5ae558ca0278ad67f1ffc3aeaa7d95a"
   end
 
-  depends_on "pkg-config" => :build
+  depends_on "pkgconf" => :build
+  depends_on "curl"
+  depends_on "expat"
   depends_on MacfuseRequirement
   depends_on :macos
-  depends_on "openssl@1.1"
+  depends_on "openssl@3"
 
   def install
     setup_fuse
-    system "./configure", "--prefix=#{prefix}"
+    system "./configure", "--disable-silent-rules", *std_configure_args
     system "make", "install"
   end
 

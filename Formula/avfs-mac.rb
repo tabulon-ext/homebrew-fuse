@@ -3,37 +3,43 @@ require_relative "../require/macfuse"
 class AvfsMac < Formula
   desc "Virtual file system that facilitates looking inside archives"
   homepage "https://avf.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/avf/avfs/1.1.4/avfs-1.1.4.tar.bz2"
-  sha256 "3a7981af8557f864ae10d4b204c29969588fdb526e117456e8efd54bf8faa12b"
+  url "https://downloads.sourceforge.net/project/avf/avfs/1.1.5/avfs-1.1.5.tar.bz2"
+  sha256 "ad9f3b64104d6009a058c70f67088f799309bf8519b14b154afad226a45272cf"
+  license all_of: [
+    "GPL-2.0-only",
+    "LGPL-2.0-only", # for shared library
+    "GPL-2.0-or-later", # modules/dav_ls.c
+    "Zlib", # zlib/*
+  ]
 
-  bottle do
-    root_url "https://github.com/gromgit/homebrew-fuse/releases/download/avfs-mac-1.1.4"
-    sha256 arm64_monterey: "77b8561c90e28063cfe2bfb9731f21a16a6d85104d6406c050c38e4fd2aa0be3"
-    sha256 monterey:       "73ab1cbd3df13518d52387613e24f0550e5a39c4d49f7ab58b20e4006ca5058f"
-    sha256 big_sur:        "536a8ff3129d4ca73bafa08d059ecaa057dec2a24b0c4509762e8f62ad1117ca"
-    sha256 catalina:       "edfe514eaacc649484b26a67f37a2c8aa38d4bf7cff97ff06477417df4396701"
-    sha256 mojave:         "eb4171d8c40b058d72fb0cbf480c21c0a89b201498fcc37d2dfd4c050219aacd"
+  livecheck do
+    url :stable
+    regex(%r{url=.*?/avfs[._-]v?(\d+(?:\.\d+)+)\.t}i)
   end
 
-  depends_on "pkg-config" => :build
+  bottle do
+    root_url "https://ghcr.io/v2/gromgit/fuse"
+    rebuild 1
+    sha256 arm64_sonoma: "05159912f28e370dcd6ade51a51f4ff3692aa51d7b289d438df55f86fa8c0102"
+    sha256 ventura:      "96d445c9a324a03e0abe222f798b1b3cf3be8cd6e0b810e0f408314453df835d"
+  end
+
+  depends_on "pkgconf" => :build
+  depends_on "bzip2"
   depends_on MacfuseRequirement
   depends_on :macos
-  depends_on "openssl@1.1"
   depends_on "xz"
+  depends_on "zlib"
 
   def install
     setup_fuse
-    args = %W[
-      --prefix=#{prefix}
-      --disable-debug
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --enable-fuse
-      --enable-library
-      --with-ssl=#{Formula["openssl@1.1"].opt_prefix}
-    ]
-
-    system "./configure", *args
+    system "./configure", "--disable-silent-rules",
+                          "--enable-fuse",
+                          "--enable-library",
+                          "--with-system-zlib",
+                          "--with-system-bzlib",
+                          "--with-xz",
+                          *std_configure_args
     system "make", "install"
   end
 

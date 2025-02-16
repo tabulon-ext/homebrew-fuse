@@ -3,32 +3,50 @@ require_relative "../require/macfuse"
 class SecurefsMac < Formula
   desc "Filesystem with transparent authenticated encryption"
   homepage "https://github.com/netheril96/securefs"
-  url "https://github.com/netheril96/securefs.git",
-      tag:      "0.13.0",
-      revision: "1705d14b8fef5ebb826a74549d609c6ab6cb63f7"
+  url "https://github.com/netheril96/securefs/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "de888359734a05ca0db56d006b4c9774f18fd9e6f9253466a86739b5f6ac3753"
   license "MIT"
-  head "https://github.com/netheril96/securefs.git"
+  head "https://github.com/netheril96/securefs.git", branch: "master"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
 
   bottle do
-    root_url "https://github.com/gromgit/homebrew-fuse/releases/download/securefs-mac-0.13.0"
-    sha256 cellar: :any_skip_relocation, arm64_monterey: "d4befffc32ea6cfd3b3a64efc297d65b10f55696477a57c47f55ea1286ca6702"
-    sha256 cellar: :any,                 monterey:       "cd01d4f2acccf83ac6d6126655ef6ed90efcfe160c635811d6eb4f53bd9d0ba5"
-    sha256 cellar: :any,                 big_sur:        "664cf88693667af20d27239d00120ba58a4bcbf341ed051a68be21b7df0c043c"
-    sha256 cellar: :any,                 catalina:       "c530c8f50c3c7515fb47504c14c2f1325d8e69fe7d37ced432e6d3bdb38648f1"
-    sha256 cellar: :any,                 mojave:         "a584a77dcb42a7fb9f3000e2c91c504ca9b399897d1f25f22aa472e89ab71b29"
+    root_url "https://ghcr.io/v2/gromgit/fuse"
+    sha256 cellar: :any, arm64_sonoma: "ec3647da4e8266e1d98712466f21d2803cba37ea30a7848769af88b8fc1f647b"
+    sha256 cellar: :any, ventura:      "da7f320431e32af30915c66d81064ea57d68cd49e7e39c8a0737f3280ee21d4d"
   end
 
   depends_on "cmake" => :build
+  depends_on "pkgconf" => :build
+  depends_on "tclap" => :build
+  depends_on "abseil"
+  depends_on "argon2"
+  depends_on "cryptopp"
+  depends_on "fruit"
+  depends_on "jsoncpp"
   depends_on MacfuseRequirement
   depends_on :macos
+  depends_on "protobuf"
+  depends_on "sqlite"
+  depends_on "uni-algo"
+  depends_on "utf8proc"
 
   def install
     setup_fuse
-    system "cmake", ".", *fuse_cmake_args, *std_cmake_args
-    system "make", "install"
+    args = %w[
+      -DSECUREFS_ENABLE_INTEGRATION_TEST=OFF
+      -DSECUREFS_ENABLE_UNIT_TEST=OFF
+      -DSECUREFS_USE_VCPKG=OFF
+    ]
+    system "cmake", "-S", ".", "-B", "build", *std_cmake_args, *args
+    system "cmake", "--build", "build"
+    system "cmake", "--install", "build"
   end
 
   test do
-    system "#{bin}/securefs", "version" # The sandbox prevents a more thorough test
+    system bin/"securefs", "version" # The sandbox prevents a more thorough test
   end
 end
